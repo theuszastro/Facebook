@@ -1,0 +1,9 @@
+node_modules
+
+database.sqlite
+
+backend/uploads/**/*.png
+backend/uploads/**/*.jpeg
+backend/uploads/**/*.jpg
+backend/uploads/**/*.mpeg
+backend/uploads/**/*.mp4

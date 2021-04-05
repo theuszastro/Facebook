@@ -1,0 +1,22 @@
+megafone = IoMegaphoneOutline
+
+
+const getPosts = useCallback(() => {
+   let newPage = page + 1;
+
+   socket.emit('feedByPage', { userId: User.id, page: newPage });
+
+   setPage(newPage);
+}, [page]);
+
+useEffect(() => {
+   socket.emit('userinfo', { userId: User.id, socket: socket.id });
+
+   socket.on('feed', (data: any) => {
+      console.log(data);
+   });
+
+   socket.on('error', (data: string) => {
+      console.log(data);
+   });
+}, []);

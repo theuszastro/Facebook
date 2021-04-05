@@ -1,0 +1,35 @@
+{
+   "name": "with-typescript-styled-components",
+   "version": "1.0.0",
+   "scripts": {
+      "dev": "next",
+      "build": "next build",
+      "start": "next start"
+   },
+   "dependencies": {
+      "axios": "^0.21.1",
+      "crypto-js": "^4.0.0",
+      "dayjs": "^1.10.3",
+      "next": "latest",
+      "next-images": "^1.7.0",
+      "nookies": "^2.5.2",
+      "polished": "^4.1.1",
+      "react": "^16.13.0",
+      "react-dom": "^16.13.0",
+      "react-icons": "^4.1.0",
+      "socket.io-client": "^3.1.0",
+      "styled-components": "^5.0.0"
+   },
+   "devDependencies": {
+      "@types/crypto-js": "^4.0.1",
+      "@types/lodash": "^4.14.168",
+      "@types/node": "12.0.12",
+      "@types/react": "16.8.23",
+      "@types/react-dom": "16.8.4",
+      "@types/socket.io-client": "^1.4.35",
+      "@types/styled-components": "5.0.1",
+      "babel-plugin-styled-components": "^1.10.0",
+      "typescript": "4.0"
+   },
+   "license": "MIT"
+}
