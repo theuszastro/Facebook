@@ -4,8 +4,14 @@ import UserController from './controllers/UserController';
 import FilesController from './controllers/FilesController';
 import PostController from './controllers/PostController';
 import SolicitationController from './controllers/SolicitationController';
+import FriendController from './controllers/FriendController';
 
-import { PostMiddleware, UserMiddleware, SolicitationMiddleware } from './middlewares';
+import {
+   PostMiddleware,
+   UserMiddleware,
+   SolicitationMiddleware,
+   FriendMiddleware,
+} from './middlewares';
 
 const router = Router();
 
@@ -16,6 +22,7 @@ const {
    validSolicitationUpdateData,
    validExistsSolicitation,
 } = SolicitationMiddleware;
+const { validFriend } = FriendMiddleware;
 
 // User
 router.get('/user/:id', validToken, UserController.list);
@@ -56,12 +63,15 @@ router.put(
    validSolicitationUpdateData,
    SolicitationController.update
 );
-
 router.delete(
    '/solicitation/:id',
    validToken,
    validExistsSolicitation,
    SolicitationController.delete
 );
+
+// Friend
+router.get('/friends', validToken, FriendController.list);
+router.delete('/friend/:id', validToken, validFriend, FriendController.delete);
 
 export default router;

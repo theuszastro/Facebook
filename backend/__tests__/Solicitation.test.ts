@@ -9,6 +9,7 @@ import { clear, connection } from './utils/database';
 
 import { createLogin, createUser } from './utils/functions/User';
 import { createToken } from './utils/functions/Token';
+import { createSolicitation } from './utils/functions/Solicitation';
 
 const api = request(app);
 
@@ -35,15 +36,23 @@ describe('Testing all functionality of solicitation', () => {
 
       test('it should return data of solicitation ', async () => {
          await createUser(api);
+         await createUser(api, { isPhone: true });
 
-         const User = await createLogin(api);
+         const User01 = await createLogin(api);
+         const User02 = await createLogin(api, { isPhone: true });
+
+         await createSolicitation(api, {
+            withToken: true,
+            token: User02.body.token,
+            toUser: User01.body.userId,
+         });
 
          const response = await api
             .get('/solicitations')
-            .set('authorization', `Bearer ${User.body.token}`);
+            .set('authorization', `Bearer ${User01.body.token}`);
 
          expect(response.status).toBe(200);
-         expect(response.body).toHaveLength(0);
+         expect(response.body).toHaveLength(1);
       });
    });
 
@@ -68,10 +77,10 @@ describe('Testing all functionality of solicitation', () => {
          await createUser(api);
          const User = await createLogin(api);
 
-         const response = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User.body.token}`)
-            .send({ to: v4() });
+         const response = await createSolicitation(api, {
+            withToken: true,
+            token: User.body.token,
+         });
 
          expect(response.status).toBe(400);
          expect(response.body).toEqual({ error: 'this user not exist' });
@@ -81,10 +90,11 @@ describe('Testing all functionality of solicitation', () => {
          await createUser(api);
          const User = await createLogin(api);
 
-         const response = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User.body.token}`)
-            .send({ from: v4() });
+         const response = await createSolicitation(api, {
+            withToken: true,
+            randomFields: true,
+            token: User.body.token,
+         });
 
          expect(response.status).toBe(402);
          expect(response.body).toEqual({ error: 'this data is not valid' });
@@ -97,15 +107,17 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const response = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const response = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
-         const alreadySent = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const alreadySent = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          expect(response.status).toBe(201);
          expect(response.body).toHaveProperty('id');
@@ -123,10 +135,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const response = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const response = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          expect(response.status).toBe(201);
          expect(response.body).toHaveProperty('id');
@@ -141,10 +154,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api.put(`/solicitation/${soli.body.id}`);
 
@@ -159,10 +173,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .put(`/solicitation/${soli.body.id}`)
@@ -193,10 +208,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .put(`/solicitation/${soli.body.id}`)
@@ -222,10 +238,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .put(`/solicitation/${soli.body.id}`)
@@ -243,10 +260,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          await api
             .put(`/solicitation/${soli.body.id}`)
@@ -271,10 +289,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .put(`/solicitation/${soli.body.id}`)
@@ -294,10 +313,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api.delete(`/solicitation/${soli.body.id}`);
 
@@ -312,10 +332,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .delete(`/solicitation/${soli.body.id}`)
@@ -347,10 +368,11 @@ describe('Testing all functionality of solicitation', () => {
          const User02 = await createLogin(api, { isPhone: true });
          const User03 = await createLogin(api, { initialData: { email: 'email@email.com' } });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .delete(`/solicitation/${soli.body.id}`)
@@ -367,10 +389,11 @@ describe('Testing all functionality of solicitation', () => {
          const User01 = await createLogin(api);
          const User02 = await createLogin(api, { isPhone: true });
 
-         const soli = await api
-            .post('/solicitation')
-            .set('authorization', `Bearer ${User01.body.token}`)
-            .send({ to: User02.body.userId });
+         const soli = await createSolicitation(api, {
+            withToken: true,
+            token: User01.body.token,
+            toUser: User02.body.userId,
+         });
 
          const response = await api
             .delete(`/solicitation/${soli.body.id}`)

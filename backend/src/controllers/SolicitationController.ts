@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
 import SolicitationModel from '../database/models/Solicitation';
+import FriendController from './FriendController';
 
 const isTest = process.env.NODE_ENV === 'test';
 
@@ -39,11 +40,15 @@ class SolicitationController {
 
       const { status } = req.body;
 
-      const Soli = await Repository.findOne(req.params.id);
+      const Soli = await Repository.findOne(req.params.id, { relations: ['from', 'to'] });
 
       Soli.status = status;
 
       await Repository.save(Soli);
+
+      if (status === 'Accepted') {
+         await FriendController.create(Soli.from.id, Soli.to.id);
+      }
 
       if (isTest) {
          return res.status(200).json(Soli);

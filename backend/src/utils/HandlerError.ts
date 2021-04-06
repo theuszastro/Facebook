@@ -33,6 +33,9 @@ const HandleError: ErrorRequestHandler = (err, req, res, next) => {
       case 'user not exist':
          return res.status(400).json({ error: 'this user not exist' });
 
+      case 'friend not exist':
+         return res.status(400).json({ error: 'this friend not exist' });
+
       case 'password not valid':
          return res.status(400).json({ error: 'this password not is valid' });
 

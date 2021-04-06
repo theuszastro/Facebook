@@ -13,6 +13,7 @@ import dayjs from 'dayjs';
 import Files from './Files';
 import Posts from './Posts';
 import Solicitation from './Solicitation';
+import Friend from './Friend';
 
 @Entity('Users')
 class UserModel {
@@ -58,6 +59,14 @@ class UserModel {
    @OneToMany(() => Solicitation, soli => soli.to, { cascade: ['insert', 'update'] })
    @JoinColumn({ name: 'to_id' })
    solicitationsReceived: Solicitation[];
+
+   @OneToMany(() => Friend, friend => friend.user, { cascade: ['insert', 'update'] })
+   @JoinColumn({ name: 'from_id' })
+   myFriends: Friend[];
+
+   @OneToMany(() => Friend, friend => friend.friend, { cascade: ['insert', 'update'] })
+   @JoinColumn({ name: 'to_id' })
+   friends: Friend[];
 
    @Column()
    online: number;
