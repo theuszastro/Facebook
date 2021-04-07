@@ -4,7 +4,13 @@ import { ContextType } from './types';
 
 export const Context = createContext({} as ContextType);
 
-const ContextProvider: React.FC = ({ children }) => {
+import { ServerSideLoginErrors } from './types';
+
+interface Props {
+   Errors: ServerSideLoginErrors | undefined;
+}
+
+const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
    const emailRegex = useMemo(() => /^.+@[a-zA-Z]+\.[a-zA-Z]{2,}$/, []);
    const phoneRegex = useMemo(() => /^[0-9]{2}([0-9])?[0-9]{8}$/, []);
 
@@ -13,6 +19,15 @@ const ContextProvider: React.FC = ({ children }) => {
 
    const [Accounts, setAccounts] = useState([]);
    const [Remembers, setRemembers] = useState([]);
+
+   const [FormLoginErrors, setFormLoginErrors] = useState({
+      ...(Errors
+         ? { ...Errors }
+         : {
+              email: { value: '', error: false },
+              password: { value: '', error: false },
+           }),
+   });
 
    return (
       <Context.Provider
@@ -27,6 +42,8 @@ const ContextProvider: React.FC = ({ children }) => {
             setAccounts,
             Remembers,
             setRemembers,
+            FormLoginErrors,
+            setFormLoginErrors,
          }}
       >
          {children}

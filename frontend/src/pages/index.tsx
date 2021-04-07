@@ -14,19 +14,25 @@ import { useAccounts, useUser } from '../hooks';
 
 import { UserCompleteType } from '../context/types';
 import api from '../services/api';
-import { NextApiRequestCookies } from 'next/dist/next-server/server/api-utils';
+
+import Constants from '../utils/Constants';
+
+import { ServerSideLoginErrors } from '../context/types';
 
 // import { Container } from './styles';
 
 interface Props {
    user: UserCompleteType;
    show: boolean;
+   errors: ServerSideLoginErrors;
 }
 
-const Pages: React.FC<Props> = ({ show }) => {
+const Pages: React.FC<Props> = ({ show, errors }) => {
+   const isSSR = process.browser;
+
    const user = null;
 
-   const [Show, setShow] = useState(show);
+   const [Show, setShow] = useState(!isSSR ? show : false);
    const { isAuthenticated } = useUser();
 
    useEffect(() => {
@@ -34,7 +40,7 @@ const Pages: React.FC<Props> = ({ show }) => {
    }, []);
 
    return (
-      <ContextProvider>
+      <ContextProvider Errors={errors}>
          <Head>
             <title>{user ? 'Facebook' : 'Facebook – entre ou cadastre-se'}</title>
          </Head>
@@ -49,7 +55,8 @@ const Pages: React.FC<Props> = ({ show }) => {
 export const getServerSideProps: GetServerSideProps = async context => {
    const cookies = context.req.cookies;
 
-   let user: UserCompleteType | undefined = undefined;
+   let user: UserCompleteType | null = null;
+   let errors: { email: boolean; password: boolean } | null = null;
 
    if (cookies) {
       if (cookies.user) {
@@ -63,12 +70,21 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
          user = response.data;
       }
+
+      if (cookies.errors) {
+         const parsedErrors = JSON.parse(cookies.errors);
+
+         errors = parsedErrors;
+
+         context.res.setHeader('Set-Cookie', `errors=; expires=${Constants.deleteCookie}`);
+      }
    }
 
    return {
       props: {
          show: true,
          user,
+         errors,
       },
    };
 };

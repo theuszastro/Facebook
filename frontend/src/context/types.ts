@@ -13,6 +13,9 @@ export interface ContextType {
 
    Remembers: RemembersType[];
    setRemembers: any;
+
+   FormLoginErrors: ServerSideLoginErrors;
+   setFormLoginErrors: any;
 }
 
 export interface AccountsType {
@@ -52,4 +55,15 @@ export interface AvatarType {
    id: string;
    path: string;
    createdAt: string;
+}
+
+export interface ServerSideLoginErrors {
+   email: {
+      value: string;
+      error: boolean;
+   };
+   password: {
+      value: string;
+      error: boolean;
+   };
 }

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { FaCheck } from 'react-icons/fa';
 import { BsFillExclamationTriangleFill } from 'react-icons/bs';
 
-import { useRegex } from '../../hooks';
+import { useFormLogin, useRegex } from '../../hooks';
 
 import { WrapperCheckbox, Checkbox, CheckboxLabel } from '../PopupAccount/styles';
 
@@ -48,13 +48,20 @@ const FormLogin: React.FC<Props> = ({
    setChecked,
 }) => {
    const { emailRegex, phoneRegex } = useRegex();
+   const {
+      FormLoginErrors: { email: EmailErrors, password: PasswordErrors },
+   } = useFormLogin();
 
-   const LoginInput = useRef({ email: '', password: '' });
+   const LoginInput = useRef({
+      email: '',
+      password: '',
+   });
    const PasswordRef = useRef<HTMLInputElement>(null);
 
    const [LoginErrors, setLoginErrors] = useState({
-      email: false,
-      password: false,
+      ...(typeof window === 'undefined'
+         ? { email: EmailErrors.error, password: PasswordErrors.error }
+         : { email: false, password: false }),
    });
 
    function reset() {
@@ -106,6 +113,9 @@ const FormLogin: React.FC<Props> = ({
 
    return (
       <Form
+         method="POST"
+         action="/api/login"
+         // encType="aplication/json"
          onSubmit={async e => {
             e.preventDefault();
 
@@ -123,6 +133,9 @@ const FormLogin: React.FC<Props> = ({
                className={LoginErrors.email ? 'error' : ''}
                ref={refs[0]}
                name="email"
+               value={
+                  typeof window === 'undefined' ? EmailErrors.value : refs[0].current?.value
+               }
                placeholder="Email ou telefone"
                onChange={e => (LoginInput.current['email'] = e.target.value)}
             />
@@ -160,6 +173,11 @@ const FormLogin: React.FC<Props> = ({
                placeholder="Senha"
                name="password"
                type="password"
+               value={
+                  typeof window === 'undefined'
+                     ? PasswordErrors.value
+                     : PasswordRef.current?.value
+               }
                onChange={e => (LoginInput.current['password'] = e.target.value)}
             />
 
