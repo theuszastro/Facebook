@@ -123,17 +123,15 @@ const FormCreate: React.FC<Props> = ({ setShowCreate }) => {
             return;
          }
 
-         if (item[0] === 'confirmEmail') {
-            return;
-         }
-
-         if (item[0] === 'email') {
-            ErrorObject[item[0]] = !emailRegex.test(item[1]) && !phoneRegex.test(item[1]);
-
-            return;
-         }
-
          if (item[0] === field) {
+            if (field === 'confirmEmail') return;
+
+            if (field === 'email') {
+               ErrorObject[item[0]] = !emailRegex.test(item[1]) && !phoneRegex.test(item[1]);
+
+               return;
+            }
+
             ErrorObject[item[0]] = item[1].length ? false : true;
          }
       });
