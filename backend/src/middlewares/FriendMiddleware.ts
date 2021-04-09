@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+
 import FriendUtils from './utils/FriendUtils';
 
 class FriendMiddleware {

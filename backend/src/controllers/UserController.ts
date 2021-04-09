@@ -14,7 +14,7 @@ class UserController {
    async list(req: Request, res: Response) {
       const Repository = getRepository(UserModel);
 
-      const User = await Repository.findOne(req.params.id);
+      const User = await Repository.findOne(req.params.id, { relations: ['avatars'] });
 
       return res.status(200).json(isTest ? User : UserView.renderSingleUser(User));
    }

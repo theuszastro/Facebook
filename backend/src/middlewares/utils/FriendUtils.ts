@@ -3,7 +3,7 @@ import { getRepository } from 'typeorm';
 import FriendModel from '../../database/models/Friend';
 
 class FriendUtils {
-   async checkFriend(id: any, user: any) {
+   async checkFriend(id: string, user: any) {
       const Repository = getRepository(FriendModel);
 
       const Friend = await Repository.findOne(id, { relations: ['user', 'friend'] });

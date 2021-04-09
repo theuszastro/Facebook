@@ -10,6 +10,11 @@ interface Props {
    Errors: ServerSideLoginErrors | undefined;
 }
 
+const LoginError = {
+   email: { value: '', error: false },
+   password: { value: '', error: false },
+};
+
 const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
    const emailRegex = useMemo(() => /^.+@[a-zA-Z]+\.[a-zA-Z]{2,}$/, []);
    const phoneRegex = useMemo(() => /^[0-9]{2}([0-9])?[0-9]{8}$/, []);
@@ -20,13 +25,11 @@ const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
    const [Accounts, setAccounts] = useState([]);
    const [Remembers, setRemembers] = useState([]);
 
+   const [HeaderMobile, setHeaderMobile] = useState(false);
+   const [HeaderHamburger, setHeaderHamburger] = useState(false);
+
    const [FormLoginErrors, setFormLoginErrors] = useState({
-      ...(Errors
-         ? { ...Errors }
-         : {
-              email: { value: '', error: false },
-              password: { value: '', error: false },
-           }),
+      ...(Errors ? { ...Errors } : LoginError),
    });
 
    return (
@@ -44,6 +47,10 @@ const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
             setRemembers,
             FormLoginErrors,
             setFormLoginErrors,
+            HeaderMobile,
+            setHeaderMobile,
+            HeaderHamburger,
+            setHeaderHamburger,
          }}
       >
          {children}

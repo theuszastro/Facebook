@@ -13,6 +13,7 @@ class UserView {
          date_birth: user.date_birth,
          online: Boolean(user.online),
          theme: user.theme,
+         avatars: user.avatars,
          updatedAt: user.updatedAt,
          createdAt: user.createdAt,
       };

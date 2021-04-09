@@ -8,6 +8,12 @@ export interface ContextType {
    isAuthenticated: boolean;
    setIsAuthenticated: any;
 
+   HeaderMobile: boolean;
+   setHeaderMobile: any;
+
+   HeaderHamburger: boolean;
+   setHeaderHamburger: any;
+
    Accounts: AccountsType[];
    setAccounts: any;
 
