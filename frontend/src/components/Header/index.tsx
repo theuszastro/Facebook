@@ -104,6 +104,7 @@ const Header: React.FC = () => {
          <Right>
             <CurrentUser>
                <CurrentUserAvatar
+                  onClick={() => alert('ainda não feito')}
                   src={getAvatarUrl({
                      sex: User?.sex ?? 'Male',
                      avatars: User?.avatars ?? [],
@@ -118,25 +119,25 @@ const Header: React.FC = () => {
             </CurrentUser>
 
             <Actions>
-               <Action>
+               <Action onClick={() => alert('ainda não feito')}>
                   <AiOutlinePlus size={20} />
 
                   <ElementHover />
                </Action>
 
-               <Action>
+               <Action onClick={() => alert('ainda não feito')}>
                   <FaFacebookMessenger size={18} />
 
                   <ElementHover />
                </Action>
 
-               <Action>
+               <Action onClick={() => alert('ainda não feito')}>
                   <Bell />
 
                   <ElementHover />
                </Action>
 
-               <Action>
+               <Action onClick={() => alert('ainda não feito')}>
                   <AiFillCaretDown size={20} />
 
                   <ElementHover />

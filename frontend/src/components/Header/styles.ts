@@ -1,12 +1,13 @@
 import styled, { css } from 'styled-components';
 
-import { BsSearch, BsClock } from 'react-icons/bs';
 import { GoSearch } from 'react-icons/go';
+
+import { BsSearch, BsClock } from 'react-icons/bs';
 import { ImArrowLeft2 } from 'react-icons/im';
 
 export const Container = styled.header`
    width: 99%;
-   height: 5.5rem;
+   height: 5.6rem;
 
    border-bottom: 1px solid ${props => (props.theme.title === 'light' ? '#f1f1f1' : '#444')};
    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.3);
@@ -118,6 +119,9 @@ export const Center = styled.div`
 
    @media (max-width: 1100px) {
       width: 52rem;
+
+      display: flex;
+      justify-content: flex-end;
    }
 `;
 
@@ -129,18 +133,20 @@ export const PageTabs = styled.div`
    align-items: center;
    justify-content: space-between;
 
-   @media (max-width: 700px) {
-      display: none;
+   @media (max-width: 1100px) {
+      width: 82%;
    }
 
-   @media (max-width: 1100px) {
-      width: 80%;
+   @media (max-width: 700px) {
+      display: none;
    }
 `;
 
 export const PageTabMain = styled.div`
    & > svg {
       fill: ${props => props.theme.colors.gray};
+
+      margin-top: 0.3rem;
    }
 `;
 
@@ -185,6 +191,10 @@ export const PageTab = styled.div`
 
       margin-left: 1.6rem;
    }
+
+   @media (max-width: 1100px) {
+      width: calc(100% / 4 - 3rem);
+   }
 `;
 
 export const Right = styled.div`
@@ -202,6 +212,10 @@ export const Actions = styled.div`
    display: flex;
    align-items: center;
    justify-content: flex-end;
+
+   @media (max-width: 1260px) {
+      width: 100%;
+   }
 `;
 
 export const Action = styled.div`
@@ -236,13 +250,15 @@ export const Action = styled.div`
 `;
 
 export const CurrentUser = styled.div`
-   width: 14rem;
+   width: 13rem;
    height: 3.5rem;
 
    display: flex;
    align-items: center;
 
    border-radius: 1.8rem;
+
+   margin-left: 1.5rem;
 
    overflow: hidden;
 
@@ -285,5 +301,5 @@ export const CurrentUserName = styled.p`
    overflow: hidden;
    text-overflow: ellipsis;
 
-   width: 10rem;
+   width: 9.5rem;
 `;

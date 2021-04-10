@@ -8,26 +8,6 @@ export default createGlobalStyle`
       --blue: #1877f2;
       --green: #42b72a;
       --green-hover: green;
-
-      @media(max-width: 1300px) {
-         font-size: 60%;
-      }
-
-      @media(max-width: 1200px) {
-         font-size: 59%;
-      }
-
-      @media(max-width: 1000px) {
-         font-size: 58%;
-      }
-
-      @media(max-width: 600px) {
-         font-size: 57%;
-      }
-
-      @media(max-width: 700px) {
-         font-size: 62.5%;
-      }
    }
 
    * {

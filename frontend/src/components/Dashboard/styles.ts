@@ -44,7 +44,7 @@ export const Left = styled.div`
    height: calc(100vh - 5.5rem);
 
    position: sticky;
-   top: 5.5rem;
+   top: 5.6rem;
    left: 0;
 
    @media (max-width: 1100px) {
@@ -60,6 +60,10 @@ export const Center = styled.div`
    flex-shrink: 0;
 
    padding: 2rem 0;
+
+   @media (min-width: 1370px) {
+      width: 64rem;
+   }
 
    @media (max-width: 1100px) {
       margin-right: 10rem;
@@ -87,7 +91,7 @@ export const Right = styled.div`
    height: calc(100vh - 5.5rem);
 
    position: sticky;
-   top: 5.5rem;
+   top: 5.6rem;
    right: 0;
 
    @media (max-width: 1100px) {

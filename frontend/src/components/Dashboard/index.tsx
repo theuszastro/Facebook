@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 
 import { useHeader, useUser } from '../../hooks';
-import Header from '../Header';
 
-import { WrapperContainer, Container, Left, Center, Right, Intermediator } from './styles';
+import Header from '../Header';
+import Stories from '../Stories';
+
+import { WrapperContainer, Container, Left, Center, Right } from './styles';
 
 const Dashboard: React.FC = () => {
    const { User } = useUser();
@@ -20,6 +22,10 @@ const Dashboard: React.FC = () => {
       checkWidth();
 
       window.addEventListener('resize', checkWidth);
+
+      return () => {
+         window.removeEventListener('resize', checkWidth);
+      };
    }, []);
 
    return (
@@ -32,27 +38,13 @@ const Dashboard: React.FC = () => {
                   style={{
                      width: '100%',
                      height: 'calc(100vh - 5.5rem)',
-                     background: 'yellow',
+                     // background: 'yellow',
                   }}
                />
             </Left>
 
             <Center id="dashCenter">
-               {/* <Feed /> */}
-
-               {[0, 1, 2, 3, 4, 5, 6, 7].map(item => {
-                  return (
-                     <div
-                        key={item}
-                        style={{
-                           width: '100%',
-                           height: '50vh',
-                           background: 'blue',
-                           ...(item != 0 && { marginTop: '1rem' }),
-                        }}
-                     />
-                  );
-               })}
+               <Stories />
             </Center>
 
             <Right id="dashRight">
@@ -61,7 +53,7 @@ const Dashboard: React.FC = () => {
                      display: 'flex',
                      width: '100%',
                      height: 'calc(100vh - 5.5rem)',
-                     background: 'yellow',
+                     // background: 'yellow',
                      justifyContent: 'flex-end',
                   }}
                />
