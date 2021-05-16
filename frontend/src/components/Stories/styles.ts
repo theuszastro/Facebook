@@ -119,6 +119,18 @@ export const NewStory = styled.div`
    ${StoryCss};
 
    margin-right: 1rem;
+
+   & > svg > path {
+      fill: #fff;
+   }
+
+   @media (max-width: 600px) {
+      width: calc(100% / 5.4);
+   }
+
+   @media (max-width: 560px) {
+      width: calc(100% / 4);
+   }
 `;
 
 export const NewStoreContent = styled.div`
@@ -128,9 +140,25 @@ export const NewStoreContent = styled.div`
 
 export const UserAvatar = styled.img`
    width: 100%;
-   height: 75%;
+   height: 100%;
 
    object-fit: cover;
+`;
+
+export const ShadeAvatar = styled.div`
+   width: 100%;
+   height: 100%;
+
+   position: absolute;
+   top: 0;
+
+   ${props =>
+      props.theme.title === 'light' &&
+      css`
+         &.default {
+            background: rgba(0, 0, 0, 0.15);
+         }
+      `}
 `;
 
 export const NewStoreContentFooter = styled.div`
@@ -185,6 +213,22 @@ export const Story = styled.div`
    &:last-child {
       margin: 0;
    }
+
+   @media (max-width: 600px) {
+      width: calc(100% / 5.4);
+   }
+
+   @media (max-width: 560px) {
+      width: calc(100% / 4);
+
+      &:last-child {
+         display: none;
+      }
+
+      &:nth-child(4) {
+         margin: 0;
+      }
+   }
 `;
 
 export const StoryUser = styled.img`
@@ -222,5 +266,7 @@ export const StoryUserName = styled.p`
    font-size: 1.4rem;
    font-weight: bold;
 
-   color: ${props => props.theme.colors.label};
+   /* color: ${props => props.theme.colors.label}; */
+
+   color: #fff;
 `;

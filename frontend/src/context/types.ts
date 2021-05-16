@@ -20,8 +20,8 @@ export interface ContextType {
    Remembers: RemembersType[];
    setRemembers: any;
 
-   FormLoginErrors: ServerSideLoginErrors;
-   setFormLoginErrors: any;
+   ShowPopup: boolean;
+   setShowPopup: any;
 }
 
 export interface AccountsType {
@@ -41,6 +41,15 @@ export interface RemembersType {
    password: string;
 }
 
+interface FriendType {
+   id: string;
+   firstname: string;
+   lastname: string;
+   sex: string;
+   online: boolean;
+   avatars: AvatarType[];
+}
+
 export interface UserCompleteType {
    id: string;
    firstname: string;
@@ -53,6 +62,11 @@ export interface UserCompleteType {
    theme: string;
    updatedAt: string;
    createdAt: string;
+   friends: Array<{
+      id: string;
+      user: FriendType;
+      createdAt: string;
+   }>;
    online: boolean;
    token: string;
 }
@@ -61,15 +75,4 @@ export interface AvatarType {
    id: string;
    path: string;
    createdAt: string;
-}
-
-export interface ServerSideLoginErrors {
-   email: {
-      value: string;
-      error: boolean;
-   };
-   password: {
-      value: string;
-      error: boolean;
-   };
 }

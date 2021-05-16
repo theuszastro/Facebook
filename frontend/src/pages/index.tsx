@@ -15,6 +15,7 @@ import { UserCompleteType } from '../context/types';
 import api from '../services/api';
 
 import { Container } from '../styles/pages';
+import Constants from '../utils/Constants';
 
 interface Props {
    user: UserCompleteType;
@@ -23,7 +24,7 @@ interface Props {
 
 const Pages: React.FC<Props> = ({ show, user }) => {
    const [Show, setShow] = useState(typeof window === 'undefined' ? show : false);
-   const { isAuthenticated, setIsAuthenticated, setUser } = useUser();
+   const { isAuthenticated, setIsAuthenticated, setUser, User } = useUser();
 
    useEffect(() => {
       if (user) {
@@ -36,12 +37,12 @@ const Pages: React.FC<Props> = ({ show, user }) => {
    }, []);
 
    return (
-      <ThemeProvider theme={user ? (user.theme === 'dark' ? Light : Dark) : Light}>
+      <ThemeProvider theme={User ? (User.theme === 'dark' ? Light : Dark) : Light}>
          <Head>
             <title>{user ? 'Facebook' : 'Facebook – entre ou cadastre-se'}</title>
          </Head>
 
-         <Container>{Show && (isAuthenticated ? <Dashboard /> : <Login />)}</Container>
+         {Show && <Container>{isAuthenticated ? <Dashboard /> : <Login />}</Container>}
       </ThemeProvider>
    );
 };
@@ -53,15 +54,23 @@ export const getServerSideProps: GetServerSideProps = async context => {
 
    if (cookies) {
       if (cookies.user) {
-         const parsedUser = JSON.parse(cookies.user);
+         try {
+            const parsedUser = JSON.parse(cookies.user);
 
-         const response = await api.get(`/user/${parsedUser.id}`, {
-            headers: {
-               authorization: `Bearer ${parsedUser.token}`,
-            },
-         });
+            const response = await api.get(`/user/${parsedUser.id}`, {
+               headers: {
+                  authorization: `Bearer ${parsedUser.token}`,
+               },
+            });
 
-         user = response.data;
+            user = response.data;
+            user.token = parsedUser.token;
+         } catch (err) {
+            context.res.setHeader(
+               'Set-Cookie',
+               `user=; expires=${Constants.deleteCookie}; path=/`
+            );
+         }
       }
    }
 

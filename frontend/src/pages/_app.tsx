@@ -1,24 +1,15 @@
 import React from 'react';
 
 import { AppProps } from 'next/app';
-import { GetServerSideProps } from 'next';
-
 import Head from 'next/head';
 
 import ContextProvider from '../context';
 
 import GlobalStyle from '../styles/GlobalStyle';
 
-import Constants from '../utils/Constants';
-import { ServerSideLoginErrors } from '../context/types';
-
-interface Props extends AppProps {
-   Errors: ServerSideLoginErrors | undefined;
-}
-
-const MyApp: React.FC<Props> = ({ Component, pageProps, Errors }) => {
+const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
    return (
-      <ContextProvider Errors={Errors}>
+      <ContextProvider>
          <Head>
             <link
                rel="shortcut icon"
@@ -34,28 +25,6 @@ const MyApp: React.FC<Props> = ({ Component, pageProps, Errors }) => {
          <GlobalStyle />
       </ContextProvider>
    );
-};
-
-export const getServerSideProps: GetServerSideProps = async context => {
-   const cookies = context.req.cookies;
-
-   let errors: ServerSideLoginErrors | null = null;
-
-   if (cookies) {
-      if (cookies.errors) {
-         const parsedErrors = JSON.parse(cookies.errors);
-
-         errors = parsedErrors;
-
-         context.res.setHeader('Set-Cookie', `errors=; expires=${Constants.deleteCookie}`);
-      }
-   }
-
-   return {
-      props: {
-         errors,
-      },
-   };
 };
 
 export default MyApp;

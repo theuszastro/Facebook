@@ -4,18 +4,7 @@ import { ContextType } from './types';
 
 export const Context = createContext({} as ContextType);
 
-import { ServerSideLoginErrors } from './types';
-
-interface Props {
-   Errors: ServerSideLoginErrors | undefined;
-}
-
-const LoginError = {
-   email: { value: '', error: false },
-   password: { value: '', error: false },
-};
-
-const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
+const ContextProvider: React.FC = ({ children }) => {
    const emailRegex = useMemo(() => /^.+@[a-zA-Z]+\.[a-zA-Z]{2,}$/, []);
    const phoneRegex = useMemo(() => /^[0-9]{2}([0-9])?[0-9]{8}$/, []);
 
@@ -28,9 +17,7 @@ const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
    const [HeaderMobile, setHeaderMobile] = useState(false);
    const [HeaderHamburger, setHeaderHamburger] = useState(false);
 
-   const [FormLoginErrors, setFormLoginErrors] = useState({
-      ...(Errors ? { ...Errors } : LoginError),
-   });
+   const [ShowPopup, setShowPopup] = useState(false);
 
    return (
       <Context.Provider
@@ -45,12 +32,12 @@ const ContextProvider: React.FC<Props> = ({ children, Errors }) => {
             setAccounts,
             Remembers,
             setRemembers,
-            FormLoginErrors,
-            setFormLoginErrors,
             HeaderMobile,
             setHeaderMobile,
             HeaderHamburger,
             setHeaderHamburger,
+            ShowPopup,
+            setShowPopup,
          }}
       >
          {children}

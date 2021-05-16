@@ -36,6 +36,10 @@ export const Container = styled.div`
    @media (max-width: 1100px) {
       justify-content: center;
    }
+
+   @media (max-width: 600px) {
+      justify-content: unset;
+   }
 `;
 
 export const Left = styled.div`

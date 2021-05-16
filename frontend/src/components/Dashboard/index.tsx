@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react';
 
-import { useHeader, useUser } from '../../hooks';
+import { useHeader, useUser, usePopup } from '../../hooks';
 
 import Header from '../Header';
 import Stories from '../Stories';
+import CreatePost from '../CreatePost';
+import Rooms from '../Rooms';
+import BasePopup from '../BasePopup';
 
 import { WrapperContainer, Container, Left, Center, Right } from './styles';
 
 const Dashboard: React.FC = () => {
    const { User } = useUser();
+   const { ShowPopup } = usePopup();
 
    const { setHeaderMobile, setHeaderHamburger } = useHeader();
 
@@ -45,6 +49,8 @@ const Dashboard: React.FC = () => {
 
             <Center id="dashCenter">
                <Stories />
+               <CreatePost />
+               <Rooms />
             </Center>
 
             <Right id="dashRight">
@@ -59,6 +65,8 @@ const Dashboard: React.FC = () => {
                />
             </Right>
          </Container>
+
+         {ShowPopup && <BasePopup />}
       </WrapperContainer>
    );
 };

@@ -24,70 +24,87 @@ import {
    StoryUser,
    StoryContent,
    StoryUserName,
+   ShadeAvatar,
 } from './styles';
 
 const StoriesComponent: React.FC = () => {
    const { User } = useUser();
 
-   const [UserStories, setUserStories] = useState(StoriesArray);
+   const [UserStories, setUserStories] = useState(
+      ((Math.random() * 40) | 0) % 2 === 0 ? [] : StoriesArray
+   );
 
    return (
       <Container>
-         <Stories>
-            {UserStories.map((item, index) => {
-               if (index === 0) {
+         {UserStories.length ? (
+            <Stories>
+               {UserStories.map((item, index) => {
+                  if (index === 0) {
+                     return (
+                        <NewStory onClick={() => alert('ainda não feito')} key={index}>
+                           <NewStoreContent>
+                              <div
+                                 style={{
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    height: '75%',
+                                 }}
+                              >
+                                 <UserAvatar
+                                    src={getAvatarUrl({
+                                       sex: User?.sex ?? 'Female',
+                                       avatars: User?.avatars ?? [],
+                                    })}
+                                 />
+
+                                 <ShadeAvatar
+                                    className={User?.avatars.length ? '' : 'default'}
+                                 />
+                              </div>
+
+                              <NewStoreContentFooter>
+                                 <NewStoreContentFooterWrapperIcon>
+                                    <Plus />
+                                 </NewStoreContentFooterWrapperIcon>
+
+                                 <NewStoryLabel>Criar story</NewStoryLabel>
+                              </NewStoreContentFooter>
+                           </NewStoreContent>
+                        </NewStory>
+                     );
+                  }
+
                   return (
-                     <NewStory onClick={() => alert('ainda não feito')} key={index}>
-                        <NewStoreContent>
-                           <UserAvatar
-                              src={getAvatarUrl({
-                                 sex: User?.sex ?? 'Female',
-                                 avatars: User?.avatars ?? [],
-                              })}
-                           />
+                     <Story key={index} onClick={() => alert(`Story de ${item.name}`)}>
+                        <StoryUser
+                           src={item.avatar}
+                           className={index % 2 === 0 ? 'active' : ''}
+                        />
 
-                           <NewStoreContentFooter>
-                              <NewStoreContentFooterWrapperIcon>
-                                 <Plus />
-                              </NewStoreContentFooterWrapperIcon>
+                        <StoryContent src={item.content} />
 
-                              <NewStoryLabel>Criar story</NewStoryLabel>
-                           </NewStoreContentFooter>
-                        </NewStoreContent>
-                     </NewStory>
+                        <StoryUserName>{item.name}</StoryUserName>
+                     </Story>
                   );
-               }
+               })}
+            </Stories>
+         ) : (
+            <StoryEmpty onClick={() => alert('ainda não feito')}>
+               <StoryEmptyContent>
+                  <StoryEmptyWrapperIcon>
+                     <Plus />
+                  </StoryEmptyWrapperIcon>
 
-               return (
-                  <Story key={index} onClick={() => alert(`Story de ${item.name}`)}>
-                     <StoryUser
-                        src={item.avatar}
-                        className={index % 2 === 0 ? 'active' : ''}
-                     />
+                  <StoryEmptyDetails>
+                     <StoryEmptyTitle>Criar um story</StoryEmptyTitle>
 
-                     <StoryContent src={item.content} />
-
-                     <StoryUserName>{item.name}</StoryUserName>
-                  </Story>
-               );
-            })}
-         </Stories>
-
-         {/* <StoryEmpty onClick={() => alert('ainda não feito')}>
-            <StoryEmptyContent>
-               <StoryEmptyWrapperIcon>
-                  <Plus />
-               </StoryEmptyWrapperIcon>
-
-               <StoryEmptyDetails>
-                  <StoryEmptyTitle>Criar um story</StoryEmptyTitle>
-
-                  <StoryEmptyDescription>
-                     Compartilhe uma foto ou escreva algo.
-                  </StoryEmptyDescription>
-               </StoryEmptyDetails>
-            </StoryEmptyContent>
-         </StoryEmpty> */}
+                     <StoryEmptyDescription>
+                        Compartilhe uma foto ou escreva algo.
+                     </StoryEmptyDescription>
+                  </StoryEmptyDetails>
+               </StoryEmptyContent>
+            </StoryEmpty>
+         )}
       </Container>
    );
 };
