@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class Solicitation1617130685913 implements MigrationInterface {
+export class Post1616764354865 implements MigrationInterface {
    public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
          new Table({
-            name: 'Solicitations',
+            name: 'Posts',
             columns: [
                {
                   name: 'id',
@@ -15,15 +15,19 @@ export class Solicitation1617130685913 implements MigrationInterface {
                   generationStrategy: 'uuid',
                },
                {
-                  name: 'solicitation_from_id',
+                  name: 'description',
+                  type: 'text',
+               },
+               {
+                  name: 'edited',
+                  type: 'integer',
+               },
+               {
+                  name: 'media_grid',
                   type: 'varchar',
                },
                {
-                  name: 'solicitation_to_id',
-                  type: 'varchar',
-               },
-               {
-                  name: 'status',
+                  name: 'user_id',
                   type: 'varchar',
                },
                {
@@ -33,16 +37,8 @@ export class Solicitation1617130685913 implements MigrationInterface {
             ],
             foreignKeys: [
                {
-                  name: 'From user solicitation',
-                  columnNames: ['solicitation_from_id'],
-                  referencedColumnNames: ['id'],
-                  referencedTableName: 'Users',
-                  onUpdate: 'CASCADE',
-                  onDelete: 'CASCADE',
-               },
-               {
-                  name: 'To user solicitation',
-                  columnNames: ['solicitation_to_id'],
+                  name: 'user',
+                  columnNames: ['user_id'],
                   referencedColumnNames: ['id'],
                   referencedTableName: 'Users',
                   onUpdate: 'CASCADE',
@@ -53,7 +49,5 @@ export class Solicitation1617130685913 implements MigrationInterface {
       );
    }
 
-   public async down(queryRunner: QueryRunner): Promise<void> {
-      await queryRunner.dropTable('Solicitations');
-   }
+   public async down(queryRunner: QueryRunner): Promise<void> {}
 }

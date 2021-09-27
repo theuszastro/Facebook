@@ -10,10 +10,11 @@ import {
 
 import dayjs from 'dayjs';
 
-import Files from './Files';
-import Posts from './Posts';
+import Files from './File';
+import Posts from './Post';
 import Solicitation from './Solicitation';
 import Friend from './Friend';
+import Like from './Like';
 
 @Entity('Users')
 class UserModel {
@@ -53,20 +54,24 @@ class UserModel {
    myPosts: Posts[];
 
    @OneToMany(() => Solicitation, soli => soli.from, { cascade: ['insert', 'update'] })
-   @JoinColumn({ name: 'from_id' })
+   @JoinColumn({ name: 'solicitation_from_id' })
    solicitationsSent: Solicitation[];
 
    @OneToMany(() => Solicitation, soli => soli.to, { cascade: ['insert', 'update'] })
-   @JoinColumn({ name: 'to_id' })
+   @JoinColumn({ name: 'solicitation_to_id' })
    solicitationsReceived: Solicitation[];
 
    @OneToMany(() => Friend, friend => friend.user, { cascade: ['insert', 'update'] })
-   @JoinColumn({ name: 'from_id' })
+   @JoinColumn({ name: 'friend_from_id' })
    myFriends: Friend[];
 
    @OneToMany(() => Friend, friend => friend.friend, { cascade: ['insert', 'update'] })
-   @JoinColumn({ name: 'to_id' })
+   @JoinColumn({ name: 'friend_to_id' })
    friends: Friend[];
+
+   @OneToMany(() => Like, like => like.user)
+   @JoinColumn({ name: 'user_id' })
+   likes: Like[];
 
    @Column()
    online: number;

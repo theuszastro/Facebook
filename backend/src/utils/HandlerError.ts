@@ -42,6 +42,9 @@ const HandleError: ErrorRequestHandler = (err, req, res, next) => {
       case 'invalid mimetype':
          return res.status(400).json({ error: 'this format of file not is supported' });
 
+      case 'reaction invalid':
+         return res.status(400).json({ error: 'this reaction not exist' });
+
       case 'post not exists':
          return res.status(400).json({ error: 'this post not exist' });
 

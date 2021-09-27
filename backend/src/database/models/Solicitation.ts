@@ -17,11 +17,11 @@ class SolicitationModel {
    id: string;
 
    @ManyToOne(() => UserModel, user => user.solicitationsSent)
-   @JoinColumn({ name: 'from_id' })
+   @JoinColumn({ name: 'solicitation_from_id' })
    from: UserModel;
 
    @ManyToOne(() => UserModel, user => user.solicitationsReceived)
-   @JoinColumn({ name: 'to_id' })
+   @JoinColumn({ name: 'solicitation_to_id' })
    to: UserModel;
 
    @Column()

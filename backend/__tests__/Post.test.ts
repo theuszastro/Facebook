@@ -8,7 +8,7 @@ import { v4 } from 'uuid';
 import { clear, connection } from './utils/database';
 import app from '../src/app';
 
-import { createLogin, createUser } from './utils/functions/User';
+import { createFriend, createLogin, createUser } from './utils/functions/User';
 import { createPost } from './utils/functions/Post';
 import { createToken } from './utils/functions/Token';
 
@@ -20,7 +20,38 @@ describe('Testing all functionality of Post', () => {
    beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
-   describe('Get data of Post', () => {
+   describe('Get posts by user', () => {
+      test('it should not get posts without token', async () => {
+         const response = await api.get('/posts');
+
+         expect(response.status).toBe(402);
+         expect(response.body).toEqual({ error: 'token is necessary' });
+      });
+
+      test('it should not get posts if user not exist', async () => {
+         const response = await api
+            .get('/posts')
+            .set('authorization', `Bearer ${createToken()}`);
+
+         expect(response.status).toBe(400);
+         expect(response.body).toEqual({ error: 'this user not exist' });
+      });
+
+      test('it should get posts', async () => {
+         const { User01, User02 } = await createFriend(api);
+
+         await createPost(api, { token: User02.body.token });
+
+         const response = await api
+            .get('/posts')
+            .set('authorization', `Bearer ${User01.body.token}`);
+
+         expect(response.body.totalPages).toBe(1);
+         expect(response.body.posts).toHaveLength(1);
+      });
+   });
+
+   describe('Get post data by id', () => {
       test('it should not return data of post with id not valid', async () => {
          const response = await api.get('/post/ggg');
 

@@ -1,10 +1,10 @@
 import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
-export class Posts1616764354865 implements MigrationInterface {
+export class Like1632241810153 implements MigrationInterface {
    public async up(queryRunner: QueryRunner): Promise<void> {
       await queryRunner.createTable(
          new Table({
-            name: 'Posts',
+            name: 'Likes',
             columns: [
                {
                   name: 'id',
@@ -15,16 +15,13 @@ export class Posts1616764354865 implements MigrationInterface {
                   generationStrategy: 'uuid',
                },
                {
-                  name: 'description',
-                  type: 'text',
-               },
-               {
-                  name: 'edited',
-                  type: 'integer',
-               },
-               {
-                  name: 'media_grid',
+                  name: 'reaction',
                   type: 'varchar',
+               },
+               {
+                  name: 'post_id',
+                  type: 'varchar',
+                  isNullable: true,
                },
                {
                   name: 'user_id',
@@ -37,7 +34,15 @@ export class Posts1616764354865 implements MigrationInterface {
             ],
             foreignKeys: [
                {
-                  name: 'user',
+                  name: 'post id likes',
+                  columnNames: ['post_id'],
+                  referencedColumnNames: ['id'],
+                  referencedTableName: 'Posts',
+                  onUpdate: 'CASCADE',
+                  onDelete: 'CASCADE',
+               },
+               {
+                  name: 'user id likes',
                   columnNames: ['user_id'],
                   referencedColumnNames: ['id'],
                   referencedTableName: 'Users',
@@ -49,5 +54,7 @@ export class Posts1616764354865 implements MigrationInterface {
       );
    }
 
-   public async down(queryRunner: QueryRunner): Promise<void> {}
+   public async down(queryRunner: QueryRunner): Promise<void> {
+      await queryRunner.dropTable('Likes');
+   }
 }

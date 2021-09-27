@@ -33,6 +33,8 @@ class UserController {
          date_birth,
       } = req.body;
 
+      if (email && phone) throw Error('data invalid');
+
       const hash = await bcrypt.hash(password, 10);
 
       const User = Repository.create({
@@ -110,6 +112,14 @@ class UserController {
       await Repository.delete(req.params.id);
 
       return res.status(200).send();
+   }
+
+   async listAll(req: Request, res: Response) {
+      const Repository = getRepository(UserModel);
+
+      const users = await Repository.find();
+
+      return res.status(200).json(users);
    }
 }
 

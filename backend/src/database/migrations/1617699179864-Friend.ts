@@ -15,11 +15,11 @@ export class Friend1617699179864 implements MigrationInterface {
                   generationStrategy: 'uuid',
                },
                {
-                  name: 'from_id',
+                  name: 'friend_from_id',
                   type: 'varchar',
                },
                {
-                  name: 'to_id',
+                  name: 'friend_to_id',
                   type: 'varchar',
                },
                {
@@ -29,16 +29,16 @@ export class Friend1617699179864 implements MigrationInterface {
             ],
             foreignKeys: [
                {
-                  name: 'from user',
-                  columnNames: ['from_id'],
+                  name: 'from user friend',
+                  columnNames: ['friend_from_id'],
                   referencedColumnNames: ['id'],
                   referencedTableName: 'Users',
                   onUpdate: 'CASCADE',
                   onDelete: 'CASCADE',
                },
                {
-                  name: 'to user',
-                  columnNames: ['to_id'],
+                  name: 'to user friend',
+                  columnNames: ['friend_to_id'],
                   referencedColumnNames: ['id'],
                   referencedTableName: 'Users',
                   onUpdate: 'CASCADE',

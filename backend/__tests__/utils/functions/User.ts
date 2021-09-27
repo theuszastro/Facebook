@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 
 import defaultValues from '../values/User';
 import { GetUserProps, CreateUserProps, LoginUserProps } from '../interfaces/User';
+import { createSolicitation } from './Solicitation';
 
 const { defaultFirstname, defaultLastname, defaultEmail, defaultPhone } = defaultValues;
 
@@ -50,4 +51,25 @@ export async function createLogin(api: SuperTest<Test>, data = {} as LoginUserPr
    };
 
    return await api.post('/login').send(user);
+}
+
+export async function createFriend(api: SuperTest<Test>) {
+   await createUser(api);
+   await createUser(api, { isPhone: true });
+
+   const User01 = await createLogin(api);
+   const User02 = await createLogin(api, { isPhone: true });
+
+   const soli = await createSolicitation(api, {
+      withToken: true,
+      token: User02.body.token,
+      toUser: User01.body.userId,
+   });
+
+   await api
+      .put(`/solicitation/${soli.body.id}`)
+      .set('authorization', `Bearer ${User01.body.token}`)
+      .send({ status: 'Accepted' });
+
+   return { User01, User02 };
 }

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, JoinColumn, ManyToOne } from 'typeorm';
 
 import User from './User';
-import Posts from './Posts';
+import Posts from './Post';
 
 @Entity('Files')
 class Files {

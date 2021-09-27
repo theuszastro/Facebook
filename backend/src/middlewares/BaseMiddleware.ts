@@ -4,7 +4,7 @@ import { getRepository } from 'typeorm';
 import jwt from 'jsonwebtoken';
 
 import UserModel from '../database/models/User';
-import PostModel from '../database/models/Posts';
+import PostModel from '../database/models/Post';
 
 class BaseMiddleware {
    async checkTokenInfo(req: Request) {

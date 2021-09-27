@@ -3,9 +3,13 @@ import { getRepository } from 'typeorm';
 
 import { FilesType } from 'src/config/busboy';
 
-import FilesModel from '../database/models/Files';
-import PostModel from '../database/models/Posts';
+import FilesModel from '../database/models/File';
+import PostModel from '../database/models/Post';
+import FriendModel from '../database/models/Friend';
+
 import PostUtils from '../middlewares/utils/PostUtils';
+
+import PostView from '../views/PostView';
 
 interface RequestBodyType {
    description: string;
@@ -15,9 +19,77 @@ interface RequestBodyType {
 }
 
 const isTest = process.env.NODE_ENV === 'test';
+const totalByPage = 10;
 
 class PostController {
    async list(req: Request, res: Response) {
+      const Repository = getRepository(PostModel);
+      const friendRepository = getRepository(FriendModel);
+
+      const { userId } = req.body;
+      const { page = 1 } = req.query;
+
+      const friends = await friendRepository.find({
+         where: { user: { id: userId } },
+         relations: ['friend', 'user'],
+      });
+
+      const friendIds: string[] = [];
+
+      for (let friend of friends) {
+         friendIds.push(friend.friend.id);
+      }
+
+      let total = 0;
+      const allPosts: PostModel[] = [];
+
+      for await (let friendId of friendIds) {
+         const postsAmount = await Repository.count({ where: { user: friendId } });
+         const posts = await Repository.find({
+            where: { user: friendId },
+            relations: [
+               'media',
+               'user',
+               'user.avatars',
+               'likes',
+               'likes.user',
+               'likes.user.avatars',
+            ],
+            take: 10,
+         });
+
+         total += postsAmount;
+
+         for (let post of posts) {
+            allPosts.push(post);
+         }
+      }
+
+      const posts: PostModel[] = [];
+      const postIds: string[] = [];
+
+      while (true) {
+         if (posts.length === allPosts.length || posts.length >= totalByPage) {
+            break;
+         }
+
+         const rand = Math.floor(Math.random() * allPosts.length);
+
+         if (allPosts[rand] && !postIds.includes(allPosts[rand].id)) {
+            posts.push(allPosts[rand]);
+            postIds.push(allPosts[rand].id);
+         }
+      }
+
+      total = Math.ceil(Math.floor(total / totalByPage));
+
+      return res.status(200).json({
+         totalPages: total <= 1 ? 1 : total,
+         posts: PostView.renderMultiplyPost(posts),
+      });
+   }
+
+   async listById(req: Request, res: Response) {
       const Repository = getRepository(PostModel);
 
       const { id } = req.params;

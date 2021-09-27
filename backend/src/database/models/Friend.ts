@@ -16,11 +16,11 @@ class FriendModel {
    id: string;
 
    @ManyToOne(() => UserModel, user => user.myFriends)
-   @JoinColumn({ name: 'from_id' })
+   @JoinColumn({ name: 'friend_from_id' })
    user: UserModel;
 
    @ManyToOne(() => UserModel, user => user.friends)
-   @JoinColumn({ name: 'to_id' })
+   @JoinColumn({ name: 'friend_to_id' })
    friend: UserModel;
 
    @Column()

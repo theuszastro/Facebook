@@ -1,6 +1,17 @@
 import UserModel from '../database/models/User';
 
 class UserView {
+   renderSingleSimpleUser(user: UserModel) {
+      return {
+         id: user.id,
+         firstname: user.firstname,
+         lastname: user.lastname,
+         sex: user.sex,
+         online: Boolean(user.online),
+         avatars: user.avatars,
+      };
+   }
+
    renderSingleUser(user: UserModel) {
       return {
          id: user.id,
@@ -19,7 +30,11 @@ class UserView {
       };
    }
 
-   renderMultipleUsers(users: UserModel[]) {
+   renderMultiplySimpleUser(users: UserModel[]) {
+      return users.map(user => this.renderSingleSimpleUser(user));
+   }
+
+   renderMultiplyUser(users: UserModel[]) {
       return users.map(user => this.renderSingleUser(user));
    }
 }

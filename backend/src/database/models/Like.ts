@@ -3,37 +3,30 @@ import {
    PrimaryGeneratedColumn,
    Column,
    JoinColumn,
-   OneToMany,
    ManyToOne,
    BeforeInsert,
 } from 'typeorm';
 
 import dayjs from 'dayjs';
 
-import User from './User';
-import Files from './Files';
+import Posts from './Post';
+import UserModel from './User';
 
-@Entity('Posts')
-class Posts {
+@Entity('Likes')
+class Like {
    @PrimaryGeneratedColumn('uuid')
    id: string;
 
    @Column()
-   description: string;
+   reaction: string;
 
-   @Column()
-   edited: number;
-
-   @Column()
-   media_grid: string;
-
-   @OneToMany(() => Files, file => file.post, { cascade: ['insert', 'update'] })
+   @ManyToOne(() => Posts, post => post.likes)
    @JoinColumn({ name: 'post_id' })
-   media: Files[];
+   post: Posts;
 
-   @ManyToOne(() => User, user => user.myPosts)
+   @ManyToOne(() => UserModel, user => user.likes)
    @JoinColumn({ name: 'user_id' })
-   user: User;
+   user: UserModel;
 
    @Column()
    createdAt: string;
@@ -44,4 +37,4 @@ class Posts {
    }
 }
 
-export default Posts;
+export default Like;

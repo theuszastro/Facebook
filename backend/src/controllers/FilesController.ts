@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getRepository } from 'typeorm';
 
-import Files from '../database/models/Files';
+import Files from '../database/models/File';
 
 import { FilesType } from '../config/busboy';
 

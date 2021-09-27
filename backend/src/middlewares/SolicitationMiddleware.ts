@@ -1,11 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import { getRepository } from 'typeorm';
+import { UserMiddleware } from '.';
 
 import SolicitationModel from '../database/models/Solicitation';
 
 import BaseMiddleware from './BaseMiddleware';
 
 import SolicitationUtils from './utils/SolicitationUtils';
+import UserUtils from './utils/UserUtils';
 
 const SolicitationAllowed = {
    create: ['to'],
@@ -13,38 +15,26 @@ const SolicitationAllowed = {
 };
 
 class SolicitationMiddleware {
-   async validSolicitationCreateData(req: Request, res: Response, next: NextFunction) {
-      const { userId, to } = req.body;
-      const body: string[] = [];
+   async checkSolicitation(req: Request, res: Response, next: NextFunction) {
+      const { status, to, userId } = req.body;
 
-      Object.entries(req.body).map(
-         item => SolicitationAllowed.create.includes(item[0]) && body.push(item[0])
-      );
+      switch (req.method.toLocaleLowerCase()) {
+         case 'put':
+            const allowedStatus = ['Accepted', 'Declined'];
+            await SolicitationUtils.checkAlreadyUpdated(req.params.id, userId);
 
-      if (body.length != SolicitationAllowed.create.length) throw Error('data invalid');
+            if (!allowedStatus.includes(status)) throw Error('data invalid');
 
-      const User = await BaseMiddleware.getUserById(req.body.to);
-      if (!User) throw Error('user not exist');
+            break;
 
-      await SolicitationUtils.checkSolicitation(userId, to);
+         case 'post':
+            await SolicitationUtils.checkSolicitation(userId, to);
 
-      next();
-   }
+            const user = await BaseMiddleware.getUserById(to);
+            if (!user) throw Error('user not exist');
 
-   async validSolicitationUpdateData(req: Request, res: Response, next: NextFunction) {
-      const { status, userId } = req.body;
-      const allowedStatus = ['Accepted', 'Declined'];
-      const body: string[] = [];
-
-      Object.entries(req.body).map(
-         item => SolicitationAllowed.update.includes(item[0]) && body.push(item[0])
-      );
-
-      if (body.length != SolicitationAllowed.update.length) throw Error('data invalid');
-
-      await SolicitationUtils.checkAlreadyUpdated(req.params.id, userId);
-
-      if (!allowedStatus.includes(status)) throw Error('data invalid');
+            break;
+      }
 
       next();
    }
