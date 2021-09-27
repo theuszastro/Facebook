@@ -1,15 +1,11 @@
-import { getRepository } from 'typeorm';
-
-import SolicitationModel from '../../database/models/Solicitation';
+import { prisma } from '../../database/connection';
 
 class SolicitationUtils {
    async checkSolicitation(user: string, to: string) {
-      const Repository = getRepository(SolicitationModel);
-
-      const Solic = await Repository.findOne({
+      const Solic = await prisma.solicitation.findFirst({
          where: {
-            to: to,
-            from: user,
+            toId: to,
+            fromId: user,
             status: 'Pending',
          },
       });
@@ -17,11 +13,12 @@ class SolicitationUtils {
    }
 
    async checkAlreadyUpdated(id: string, userId: any) {
-      const Repository = getRepository(SolicitationModel);
-
       const status = ['Accepted', 'Declined'];
 
-      const Solic = await Repository.findOne(id, { relations: ['from'] });
+      const Solic = await prisma.solicitation.findUnique({
+         where: { id },
+         include: { from: true },
+      });
 
       if (status.includes(Solic.status)) throw Error('already updated solicitation');
       if (Solic.from.id === userId) throw Error('without permission');

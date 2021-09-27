@@ -1,7 +1,11 @@
-import UserModel from '../database/models/User';
+import type { User, File } from '@prisma/client';
+
+type NewUser = User & {
+   avatars: File[];
+};
 
 class UserView {
-   renderSingleSimpleUser(user: UserModel) {
+   renderSingleSimpleUser(user: NewUser) {
       return {
          id: user.id,
          firstname: user.firstname,
@@ -12,7 +16,7 @@ class UserView {
       };
    }
 
-   renderSingleUser(user: UserModel) {
+   renderSingleUser(user: NewUser) {
       return {
          id: user.id,
          firstname: user.firstname,
@@ -30,11 +34,11 @@ class UserView {
       };
    }
 
-   renderMultiplySimpleUser(users: UserModel[]) {
+   renderMultiplySimpleUser(users: NewUser[]) {
       return users.map(user => this.renderSingleSimpleUser(user));
    }
 
-   renderMultiplyUser(users: UserModel[]) {
+   renderMultiplyUser(users: NewUser[]) {
       return users.map(user => this.renderSingleUser(user));
    }
 }

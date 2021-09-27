@@ -1,15 +1,15 @@
-import { getRepository, getConnection } from 'typeorm';
+import { prisma } from '../../../src/database/connection';
 
 export async function clear() {
-   const connection = getConnection();
+   const models = Object.keys(prisma)
+      .filter(mo => !mo.startsWith('$'))
+      .filter(mo => !mo.startsWith('_'));
 
-   if (connection.isConnected) {
-      const entities = connection.entityMetadatas;
+   const deleteModels: any[] = [];
 
-      for await (const entity of entities) {
-         const repository = getRepository(entity.name);
-
-         await repository.clear();
-      }
+   for (let model of models) {
+      deleteModels.push(prisma[model].deleteMany());
    }
+
+   await prisma.$transaction(deleteModels);
 }

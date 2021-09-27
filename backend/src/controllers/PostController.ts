@@ -1,15 +1,15 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
 
-import { FilesType } from 'src/config/busboy';
+import { v4 } from 'uuid';
+import dayjs from 'dayjs';
 
-import FilesModel from '../database/models/File';
-import PostModel from '../database/models/Post';
-import FriendModel from '../database/models/Friend';
+import { FilesType } from '../config/busboy';
+import { Post } from '../utils/types';
 
 import PostUtils from '../middlewares/utils/PostUtils';
-
 import PostView from '../views/PostView';
+
+import { prisma } from '../database/connection';
 
 interface RequestBodyType {
    description: string;
@@ -23,158 +23,134 @@ const totalByPage = 10;
 
 class PostController {
    async list(req: Request, res: Response) {
-      const Repository = getRepository(PostModel);
-      const friendRepository = getRepository(FriendModel);
-
       const { userId } = req.body;
-      const { page = 1 } = req.query;
 
-      const friends = await friendRepository.find({
-         where: { user: { id: userId } },
-         relations: ['friend', 'user'],
+      const posts = await prisma.post.findMany({
+         where: {
+            userPostId: userId,
+         },
+         include: {
+            _count: true,
+            media: true,
+            user: true,
+         },
+         take: 10,
       });
 
-      const friendIds: string[] = [];
-
-      for (let friend of friends) {
-         friendIds.push(friend.friend.id);
-      }
-
-      let total = 0;
-      const allPosts: PostModel[] = [];
-
-      for await (let friendId of friendIds) {
-         const postsAmount = await Repository.count({ where: { user: friendId } });
-         const posts = await Repository.find({
-            where: { user: friendId },
-            relations: [
-               'media',
-               'user',
-               'user.avatars',
-               'likes',
-               'likes.user',
-               'likes.user.avatars',
-            ],
-            take: 10,
-         });
-
-         total += postsAmount;
-
-         for (let post of posts) {
-            allPosts.push(post);
-         }
-      }
-
-      const posts: PostModel[] = [];
-      const postIds: string[] = [];
-
-      while (true) {
-         if (posts.length === allPosts.length || posts.length >= totalByPage) {
-            break;
-         }
-
-         const rand = Math.floor(Math.random() * allPosts.length);
-
-         if (allPosts[rand] && !postIds.includes(allPosts[rand].id)) {
-            posts.push(allPosts[rand]);
-            postIds.push(allPosts[rand].id);
-         }
-      }
-
-      total = Math.ceil(Math.floor(total / totalByPage));
-
-      return res.status(200).json({
-         totalPages: total <= 1 ? 1 : total,
-         posts: PostView.renderMultiplyPost(posts),
-      });
+      return res.status(200).json(posts);
    }
 
    async listById(req: Request, res: Response) {
-      const Repository = getRepository(PostModel);
-
       const { id } = req.params;
 
-      const Post = await Repository.findOne(id, { relations: ['media'] });
+      const Post = await prisma.post.findUnique({
+         where: {
+            id,
+         },
+         include: {
+            media: true,
+            user: true,
+         },
+      });
 
       return res.status(200).json(Post);
    }
 
    async create(req: Request, res: Response) {
-      const Repository = getRepository(PostModel);
-      const filesRepository = getRepository(FilesModel);
-
       const { description, files, userId }: RequestBodyType = req.body;
 
-      let Post = Repository.create({
-         description: description ?? '',
-         edited: 0,
-         media_grid: files && files.length ? PostUtils.getGridMedia(files) : '',
-         user: userId,
+      const Post = await prisma.post.create({
+         data: {
+            id: v4(),
+            description: description ?? '',
+            edited: false,
+            media_grid: files && files.length ? PostUtils.getGridMedia(files) : '',
+            ...(files &&
+               files.length >= 1 && {
+                  media: {
+                     create: files.map(item => {
+                        return {
+                           id: v4(),
+                           isVideo: item.isVideo,
+                           path: item.path,
+                        };
+                     }),
+                  },
+               }),
+            user: {
+               connect: {
+                  id: userId,
+               },
+            },
+            createdAt: dayjs().format(),
+         },
       });
 
-      await Repository.save(Post);
-
-      if (files && files.length) {
-         const filesForSave = files.map(item => {
-            return filesRepository.create({
-               isVideo: item.isVideo,
-               path: item.path,
-               post: Post.id as any,
-            });
+      if (isTest) {
+         const postUpdated = await prisma.post.findUnique({
+            where: { id: Post.id },
+            include: { media: true, user: true },
          });
 
-         await filesRepository.save(filesForSave);
-      }
-
-      if (isTest) {
-         Post = await Repository.findOne(Post.id, { relations: ['media'] });
-
-         return res.status(201).json(Post);
+         return res.status(201).json(postUpdated);
       }
 
       return res.status(201).send();
    }
 
    async update(req: Request, res: Response) {
-      const Repository = getRepository(PostModel);
-      const filesRepository = getRepository(FilesModel);
-
       const { description, oldFiles, files, userId }: RequestBodyType = req.body;
+      const { id } = req.params;
 
-      const Post = await Repository.findOne(req.params.id, { relations: ['media'] });
+      if (description) {
+         await prisma.post.update({
+            where: { id },
+            data: { description },
+         });
+      }
 
-      description && (Post.description = description);
-
-      await Repository.save(Post);
-
-      const deleteIds: string[] = [];
-
-      if (oldFiles && oldFiles.length) {
-         const PostFiles = await filesRepository.find({ where: { post: Post.id } });
-
-         PostFiles.map(item => {
-            if (oldFiles.includes(item.id)) return;
-
-            deleteIds.push(item.id);
+      if (oldFiles && oldFiles.length >= 1) {
+         const PostFiles = await prisma.file.findMany({
+            where: {
+               postId: id,
+            },
          });
 
-         deleteIds.length && (await filesRepository.delete(deleteIds));
+         const trans: any[] = [];
+
+         for (let file of PostFiles) {
+            if (!oldFiles.includes(file.id)) {
+               trans.push(prisma.file.delete({ where: { id: file.id } }));
+            }
+         }
+
+         await prisma.$transaction(trans);
       }
 
       if (files && files.length) {
-         const newFiles = files.map(item => {
-            return filesRepository.create({
-               isVideo: item.isVideo,
-               path: item.path,
-               post: Post.id as any,
-            });
-         });
+         const trans: any[] = [];
 
-         await filesRepository.save(newFiles);
+         for (let file of files) {
+            trans.push(
+               prisma.file.create({
+                  data: {
+                     id: v4(),
+                     path: file.path,
+                     isVideo: file.isVideo,
+                     postId: id,
+                  },
+               })
+            );
+         }
+
+         await prisma.$transaction(trans);
       }
 
       if (isTest) {
-         const UpdatedPost = await Repository.findOne(Post.id, { relations: ['media'] });
+         const UpdatedPost = await prisma.post.findUnique({
+            where: { id: id },
+            include: { media: true },
+         });
 
          return res.status(200).json(UpdatedPost);
       }
@@ -183,11 +159,9 @@ class PostController {
    }
 
    async delete(req: Request, res: Response) {
-      const Repository = getRepository(PostModel);
-
       const { id } = req.params;
 
-      await Repository.delete(id);
+      await prisma.post.delete({ where: { id } });
 
       return res.status(200).send();
    }

@@ -1,0 +1,101 @@
+datasource db {
+  provider = "sqlite"
+  url = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+   id String @id
+   firstname String
+   lastname String
+   email String?
+   phone String?
+   password String
+   sex String
+   pronoun String
+   date_birth String
+   online Boolean
+   theme String
+   office String
+   updatedAt String
+   createdAt String
+
+   avatars File[]
+   myPosts Post[]
+
+   solicitationSent Solicitation[] @relation("solicitation_from_user")
+   socilitationReceived Solicitation[] @relation("solicitation_to_user")
+
+   myFriends Friend[] @relation("friend_from_user")
+   friends Friend[] @relation("friend_to_user")
+
+   likes Like[]
+}
+
+model Friend {
+   id String @id
+
+   userId String?
+   user User? @relation("friend_from_user", fields: [userId], references: [id])
+
+   friendId String?
+   friend User? @relation("friend_to_user", fields: [friendId], references: [id])
+
+   createdAt String
+}
+
+model Post {
+   id String @id
+   description String
+   edited Boolean
+   media_grid String
+
+   media File[]
+   likes Like[]
+
+   userPostId String?
+   user User? @relation(fields: [userPostId], references: [id])
+
+   createdAt String
+}
+
+model Like {
+   id String @id
+   reaction String
+
+   postId String?
+   post Post? @relation(fields: [postId], references: [id])
+
+   userId String?
+   user User? @relation(fields: [userId], references: [id])
+
+   createdAt String
+}
+
+model Solicitation {
+   id String @id
+
+   fromId String?
+   from User? @relation("solicitation_from_user", fields: [fromId], references: [id])
+
+   toId String?
+   to User? @relation("solicitation_to_user",fields: [toId], references: [id])
+
+   status String
+   createdAt String
+}
+
+model File {
+   id String @id
+   path String
+   isVideo Boolean
+
+   userId String?
+   user User? @relation(fields: [userId], references: [id])
+
+   postId String?
+   post Post? @relation(fields: [postId], references: [id])
+}

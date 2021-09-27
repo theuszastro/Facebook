@@ -1,32 +1,41 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
 
-import SolicitationModel from '../database/models/Solicitation';
+import { v4 } from 'uuid';
+import dayjs from 'dayjs';
+
 import FriendController from './FriendController';
+
+import { prisma } from '../database/connection';
 
 const isTest = process.env.NODE_ENV === 'test';
 
 class SolicitationController {
    async list(req: Request, res: Response) {
-      const Repository = getRepository(SolicitationModel);
-
-      const Solis = await Repository.find({ where: { to: req.body.userId } });
+      const Solis = await prisma.solicitation.findMany({ where: { toId: req.body.userId } });
 
       return res.status(200).json(Solis);
    }
 
    async create(req: Request, res: Response) {
-      const Repository = getRepository(SolicitationModel);
-
       const { userId, to } = req.body;
 
-      const soli = Repository.create({
-         from: userId,
-         to: to,
-         status: 'Pending',
+      const soli = await prisma.solicitation.create({
+         data: {
+            id: v4(),
+            from: {
+               connect: {
+                  id: userId,
+               },
+            },
+            to: {
+               connect: {
+                  id: to,
+               },
+            },
+            status: 'Pending',
+            createdAt: dayjs().format(),
+         },
       });
-
-      await Repository.save(soli);
 
       if (isTest) {
          return res.status(201).send(soli);
@@ -36,15 +45,16 @@ class SolicitationController {
    }
 
    async update(req: Request, res: Response) {
-      const Repository = getRepository(SolicitationModel);
-
       const { status } = req.body;
 
-      const Soli = await Repository.findOne(req.params.id, { relations: ['from', 'to'] });
-
-      Soli.status = status;
-
-      await Repository.save(Soli);
+      const Soli = await prisma.solicitation.update({
+         where: { id: req.params.id },
+         data: { status },
+         include: {
+            from: true,
+            to: true,
+         },
+      });
 
       if (status === 'Accepted') {
          await FriendController.create(Soli.from.id, Soli.to.id);
@@ -58,9 +68,7 @@ class SolicitationController {
    }
 
    async delete(req: Request, res: Response) {
-      const Repository = getRepository(SolicitationModel);
-
-      await Repository.delete(req.params.id);
+      await prisma.solicitation.delete({ where: { id: req.params.id } });
 
       return res.status(200).send();
    }

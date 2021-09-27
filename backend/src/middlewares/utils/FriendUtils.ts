@@ -1,12 +1,14 @@
-import { getRepository } from 'typeorm';
-
-import FriendModel from '../../database/models/Friend';
+import { prisma } from '../../database/connection';
 
 class FriendUtils {
    async checkFriend(id: string, user: any) {
-      const Repository = getRepository(FriendModel);
-
-      const Friend = await Repository.findOne(id, { relations: ['user', 'friend'] });
+      const Friend = await prisma.friend.findUnique({
+         where: { id },
+         include: {
+            user: true,
+            friend: true,
+         },
+      });
       if (!Friend) throw Error('friend not exist');
 
       const ids = [Friend.friend.id, Friend.user.id];

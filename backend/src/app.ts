@@ -18,7 +18,7 @@ import busboyMiddleware from './middlewares/BusboyMiddleware';
 import routes from './routes';
 
 dotenv.config({
-   path: join(__dirname, '../.env'),
+   path: join(__dirname, '../', process.env.NODE_ENV === 'test' ? '.env.test' : '.env'),
 });
 
 dayjs.locale(ptBr);

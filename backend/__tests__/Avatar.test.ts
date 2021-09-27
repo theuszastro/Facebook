@@ -1,9 +1,9 @@
-import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
 
 import { createUser, createLogin } from './utils/functions/User';
 
-import { clear, connection } from './utils/database';
+import { clear } from './utils/database';
 
 import app from '../src/app';
 
@@ -15,7 +15,6 @@ const svg = join(__dirname, 'images/svg.svg');
 const api = request(app);
 
 describe('Testing all functionality of avatars', () => {
-   beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
    describe('upload of avatar', () => {

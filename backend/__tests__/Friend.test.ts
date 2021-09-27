@@ -1,5 +1,5 @@
-import { expect, describe, test, beforeEach, beforeAll } from '@jest/globals';
-import { clear, connection } from './utils/database';
+import { expect, describe, test, beforeEach } from '@jest/globals';
+import { clear } from './utils/database';
 
 import request from 'supertest';
 import { v4 } from 'uuid';
@@ -13,7 +13,6 @@ import { createSolicitation } from './utils/functions/Solicitation';
 const api = request(app);
 
 describe('Testing all functionality of friend', () => {
-   beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
    describe('Get friends', () => {

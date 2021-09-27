@@ -1,4 +1,0 @@
-case 'referer':
-    case 'referrer':
-      return this.headers.referrer
-        || this.headers.referer;

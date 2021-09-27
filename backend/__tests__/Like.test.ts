@@ -1,11 +1,11 @@
-import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
 
 import { v4 } from 'uuid';
 
 import app from '../src/app';
 
-import { clear, connection } from './utils/database';
+import { clear } from './utils/database';
 
 import { createToken } from './utils/functions/Token';
 import { createLogin, createUser } from './utils/functions/User';
@@ -14,7 +14,6 @@ import { createPost } from './utils/functions/Post';
 const api = request(app);
 
 describe('Testing all functionality of likes', () => {
-   beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
    describe('Testing likes in posts', () => {
@@ -88,18 +87,6 @@ describe('Testing all functionality of likes', () => {
 
          expect(response.body).toMatchObject(expect.objectContaining({ reaction: 'like' }));
          expect(response01.body).toMatchObject(expect.objectContaining({ reaction: 'uau' }));
-      });
-
-      test('it should not delete like if not exists', async () => {
-         await createUser(api);
-         const user = await createLogin(api);
-
-         const response = await api
-            .delete(`/like/${v4()}`)
-            .set('authorization', `Bearer ${user.body.token}`);
-
-         expect(response.status).toBe(400);
-         expect(response.body).toEqual({ error: 'this reaction not exist' });
       });
 
       test('it should delete like ', async () => {

@@ -14,22 +14,17 @@ class DataMiddleware {
    validData(req: Request, res: Response, next: NextFunction) {
       const { fields, length } = this.getRules(req.method.toLowerCase(), req.path);
 
-      const keys: string[] = [];
-      const values: any[] = [];
+      const { userId, ...rest } = req.body;
+      const newBody = {};
 
-      Object.entries(req.body).map((item: [string, string]) => {
+      Object.entries({ ...rest }).map((item: [string, string]) => {
          if (fields.includes(item[0]) && item[1].length) {
-            keys.push(item[0]);
-            values.push(item[1]);
+            newBody[item[0]] = item[1];
          }
       });
 
-      if (keys.length < length) throw Error('data invalid');
-
-      const { userId } = req.body;
-
-      const newBody = { ...(userId && { userId }) };
-      keys.map((item, index) => (newBody[item] = values[index]));
+      if (Object.keys(newBody).length < length) throw Error('data invalid');
+      if (userId) newBody['userId'] = userId;
 
       req.body = newBody;
 

@@ -6,16 +6,14 @@ class UserUtils {
    compareUserId(id: string, office: string, req: Request) {
       const idValid = validate(req.params.id);
 
-      if (office === 'Administrador') {
-         return;
-      }
+      if (office != 'Administrator') {
+         if (!idValid) {
+            throw Error('id invalid');
+         }
 
-      if (!idValid) {
-         throw Error('id invalid');
-      }
-
-      if (id !== req.params.id) {
-         throw Error('without permission');
+         if (id !== req.params.id) {
+            throw Error('without permission');
+         }
       }
    }
 }

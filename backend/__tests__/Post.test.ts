@@ -1,11 +1,11 @@
-import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
 
 import { join } from 'path';
 
 import { v4 } from 'uuid';
 
-import { clear, connection } from './utils/database';
+import { clear } from './utils/database';
 import app from '../src/app';
 
 import { createFriend, createLogin, createUser } from './utils/functions/User';
@@ -17,7 +17,6 @@ const api = request(app);
 const image = join(__dirname, 'images/teste.jpeg');
 
 describe('Testing all functionality of Post', () => {
-   beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
    describe('Get posts by user', () => {
@@ -38,16 +37,16 @@ describe('Testing all functionality of Post', () => {
       });
 
       test('it should get posts', async () => {
-         const { User01, User02 } = await createFriend(api);
+         await createUser(api);
+         const User01 = await createLogin(api);
 
-         await createPost(api, { token: User02.body.token });
+         await createPost(api, { token: User01.body.token });
 
          const response = await api
             .get('/posts')
             .set('authorization', `Bearer ${User01.body.token}`);
 
-         expect(response.body.totalPages).toBe(1);
-         expect(response.body.posts).toHaveLength(1);
+         expect(response.body).toHaveLength(1);
       });
    });
 
@@ -227,7 +226,7 @@ describe('Testing all functionality of Post', () => {
          const Post02Update = await api
             .put(`/post/${Post02.body.id}`)
             .set('authorization', `Bearer ${User.body.token}`)
-            .field('oldFiles', [Post02.body.media[0].id])
+            .field('oldFile0', Post02.body.media[0].id)
             .attach('image', image)
             .attach('image', image);
 

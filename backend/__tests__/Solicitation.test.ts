@@ -1,11 +1,11 @@
-import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
 
 import { v4 } from 'uuid';
 
 import app from '../src/app';
 
-import { clear, connection } from './utils/database';
+import { clear } from './utils/database';
 
 import { createLogin, createUser } from './utils/functions/User';
 import { createToken } from './utils/functions/Token';
@@ -14,7 +14,6 @@ import { createSolicitation } from './utils/functions/Solicitation';
 const api = request(app);
 
 describe('Testing all functionality of solicitation', () => {
-   beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
    describe('Get solicitation', () => {

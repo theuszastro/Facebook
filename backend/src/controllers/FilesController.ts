@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
+import type { File } from '@prisma/client';
 
-import Files from '../database/models/File';
+import { v4 } from 'uuid';
 
+import { prisma } from '../database/connection';
 import { FilesType } from '../config/busboy';
 
 interface RequestBodyType {
-   userId: any;
+   userId: string;
    files: FilesType[];
    id: string;
 }
@@ -15,19 +16,26 @@ const isTest = process.env.NODE_ENV === 'test';
 
 class FilesController {
    async uploadAvatar(req: Request, res: Response) {
-      const Repository = getRepository(Files);
-
       const { userId, files }: RequestBodyType = req.body;
 
-      const Avatars = files.map(item => {
-         return Repository.create({
-            path: item.path,
-            isVideo: item.isVideo,
-            userAvatar: userId,
-         });
-      });
+      const Avatars: File[] = [];
 
-      await Repository.save(Avatars);
+      for await (let avatar of files) {
+         const data = await prisma.file.create({
+            data: {
+               id: v4(),
+               isVideo: avatar.isVideo,
+               path: avatar.path,
+               user: {
+                  connect: {
+                     id: userId,
+                  },
+               },
+            },
+         });
+
+         Avatars.push(data);
+      }
 
       if (isTest) {
          return res.status(201).json({ id: Avatars[0].id });
@@ -37,21 +45,31 @@ class FilesController {
    }
 
    async reuploadAvatar(req: Request, res: Response) {
-      const Repository = getRepository(Files);
       const { userId, id }: RequestBodyType = req.body;
-
       if (!id) throw Error('data invalid');
 
-      const file = await Repository.findOne(id, { where: { userAvatar: userId } });
+      const file = await prisma.file.findFirst({
+         where: {
+            id,
+            user: {
+               id: userId,
+            },
+         },
+      });
       if (!file) throw Error('avatar not valid');
 
-      const avatar = Repository.create({
-         userAvatar: userId,
-         path: file.path,
-         isVideo: file.isVideo,
+      await prisma.file.create({
+         data: {
+            id: v4(),
+            path: file.path,
+            isVideo: file.isVideo,
+            user: {
+               connect: {
+                  id: userId,
+               },
+            },
+         },
       });
-
-      await Repository.save(avatar);
 
       return res.status(201).send();
    }

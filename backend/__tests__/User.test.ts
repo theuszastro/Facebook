@@ -1,8 +1,7 @@
-import { describe, test, expect, beforeAll, beforeEach } from '@jest/globals';
+import { describe, test, expect, beforeEach } from '@jest/globals';
 import request from 'supertest';
 
 import { v4 } from 'uuid';
-import jwt from 'jsonwebtoken';
 import dayjs from 'dayjs';
 
 import app from '../src/app';
@@ -12,7 +11,7 @@ import defaultValues from './utils/values/User';
 
 import { createToken } from './utils/functions/Token';
 
-import { clear, connection } from './utils/database';
+import { clear } from './utils/database';
 
 const api = request(app);
 
@@ -26,7 +25,6 @@ const {
 } = defaultValues;
 
 describe('Testing all functionality of user', () => {
-   beforeAll(async () => await connection());
    beforeEach(async () => await clear());
 
    describe('Get data of user', () => {
@@ -323,7 +321,7 @@ describe('Testing all functionality of user', () => {
          expect(userUpdated.body).toMatchObject(
             expect.objectContaining({
                email: newEmail,
-               office: 'Usuário',
+               office: 'User',
             })
          );
       });

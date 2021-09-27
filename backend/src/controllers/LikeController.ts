@@ -1,63 +1,73 @@
 import { Request, Response } from 'express';
-import { getRepository } from 'typeorm';
+
+import dayjs from 'dayjs';
+import { v4 } from 'uuid';
+
+import { prisma } from '../database/connection';
 
 import BaseMiddleware from '../middlewares/BaseMiddleware';
 
-import Like from '../database/models/Like';
-
 import LikeView from '../views/LikeView';
-import { format } from 'path';
 
 class LikeController {
    async create(req: Request, res: Response) {
-      const Repository = getRepository(Like);
-
       const { post, reaction, userId } = req.body;
 
       const currentPost = await BaseMiddleware.getPost(post);
       if (!currentPost) throw Error('post not exists');
 
-      const feedback = await Repository.findOne({
-         relations: ['post'],
+      const feedback = await prisma.like.findFirst({
          where: {
-            ...(post && { post: { id: post } }),
-            user: userId,
+            ...(post && { postId: post }),
+            userId: userId,
+         },
+         include: {
+            post: true,
          },
       });
 
       if (feedback) {
-         feedback.reaction = reaction;
+         const newFeedback = await prisma.like.update({
+            where: {
+               id: feedback.id,
+            },
+            data: {
+               reaction,
+            },
+         });
 
-         await Repository.save(feedback);
-
-         return res.status(201).json(feedback);
+         return res.status(201).json(newFeedback);
       }
 
-      const newFeedback = Repository.create({
-         reaction,
-         ...(post && { post: post }),
-         user: userId,
+      const newFeedback = await prisma.like.create({
+         data: {
+            id: v4(),
+            reaction,
+            ...(post && {
+               post: {
+                  connect: {
+                     id: post,
+                  },
+               },
+            }),
+            user: {
+               connect: {
+                  id: userId,
+               },
+            },
+            createdAt: dayjs().format(),
+         },
       });
-
-      await Repository.save(newFeedback);
 
       return res.status(201).json(newFeedback);
    }
 
    async delete(req: Request, res: Response) {
-      const Repository = getRepository(Like);
-
       const { id } = req.params;
 
-      const like = await Repository.findOne(id);
+      await prisma.like.delete({ where: { id } });
 
-      if (like) {
-         await Repository.delete(like.id);
-
-         return res.status(200).send();
-      }
-
-      throw Error('reaction invalid');
+      return res.status(200).send();
    }
 }
 

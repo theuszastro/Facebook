@@ -1,18 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { getRepository } from 'typeorm';
-import { UserMiddleware } from '.';
 
-import SolicitationModel from '../database/models/Solicitation';
+import { prisma } from '../database/connection';
 
 import BaseMiddleware from './BaseMiddleware';
-
 import SolicitationUtils from './utils/SolicitationUtils';
-import UserUtils from './utils/UserUtils';
-
-const SolicitationAllowed = {
-   create: ['to'],
-   update: ['status'],
-};
 
 class SolicitationMiddleware {
    async checkSolicitation(req: Request, res: Response, next: NextFunction) {
@@ -40,8 +31,15 @@ class SolicitationMiddleware {
    }
 
    async validExistsSolicitation(req: Request, res: Response, next: NextFunction) {
-      const Repository = getRepository(SolicitationModel);
-      const Solic = await Repository.findOne(req.params.id, { relations: ['from', 'to'] });
+      const Solic = await prisma.solicitation.findUnique({
+         where: {
+            id: req.params.id,
+         },
+         include: {
+            from: true,
+            to: true,
+         },
+      });
 
       const { userId } = req.body;
 

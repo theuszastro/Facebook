@@ -18,7 +18,6 @@ import {
 const router = Router();
 
 const { validData } = DataMiddleware;
-
 const { checkUser, validToken } = UserMiddleware;
 const { validPostOwner, validExistsPost } = PostMiddleware;
 const { checkSolicitation, validExistsSolicitation } = SolicitationMiddleware;

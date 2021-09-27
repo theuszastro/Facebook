@@ -6,7 +6,7 @@ import { join } from 'path';
 
 export interface FilesType {
    path: string;
-   isVideo: number;
+   isVideo: boolean;
 }
 
 class BusboyConfig {
@@ -34,13 +34,25 @@ class BusboyConfig {
 
       files.push({
          path: name,
-         isVideo: Number(isVideo.includes(mimetype)),
+         isVideo: isVideo.includes(mimetype),
       });
 
       file.pipe(createWriteStream(saveIn));
    }
 
    onField(field: string, value: string, req: Request) {
+      if (field.startsWith('oldFile')) {
+         if (req.body['oldFiles']) {
+            req.body['oldFiles'].push(value);
+
+            return;
+         }
+
+         req.body['oldFiles'] = [value];
+
+         return;
+      }
+
       req.body[field] = value;
    }
 
