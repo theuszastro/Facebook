@@ -8,10 +8,7 @@ const HandleError: ErrorRequestHandler = (err, req, res, next) => {
 
    switch (err.message) {
       case 'token is necessary':
-         return res.status(402).json({ error: 'token is necessary' });
-
-      case 'data invalid':
-         return res.status(402).json({ error: 'this data is not valid' });
+         return res.status(401).json({ error: 'token is necessary' });
 
       case 'without permission':
          return res.status(401).json({ error: 'you not have permission for to follow' });
@@ -21,11 +18,14 @@ const HandleError: ErrorRequestHandler = (err, req, res, next) => {
 
       case 'phone in use':
          return res.status(401).json({ error: 'this phone already in use' });
-
+         
       case 'already updated solicitation':
          return res
             .status(401)
             .json({ error: 'you already accepted/declined this solicitation' });
+
+      case 'data invalid':
+         return res.status(400).json({ error: 'this data is not valid' });
 
       case 'id invalid':
          return res.status(400).json({ error: 'this id is not valid' });
