@@ -15,114 +15,114 @@ const svg = join(__dirname, 'images/svg.svg');
 const api = request(app);
 
 describe('Testing all functionality of avatars', () => {
-   beforeEach(async () => await clear());
+	beforeEach(async () => await clear());
 
-   describe('upload of avatar', () => {
-      test('it should not save image without token', async () => {
-         const response = await api.post('/avatar').attach('avatar', image);
+	describe('upload of avatar', () => {
+		test('it should not save image without token', async () => {
+			const response = await api.post('/avatar').attach('avatar', image);
 
-         expect(response.status).toBe(402);
-         expect(response.body).toEqual({ error: 'token is necessary' });
-      });
+			expect(response.status).toBe(401);
+			expect(response.body).toEqual({ error: 'token is necessary' });
+		});
 
-      test('it should not save image with mimetype not supported', async () => {
-         const response = await api.post('/avatar').attach('avatar', svg);
+		test('it should not save image with mimetype not supported', async () => {
+			const response = await api.post('/avatar').attach('avatar', svg);
 
-         expect(response.status).toBe(400);
-         expect(response.body).toEqual({ error: 'this format of file not is supported' });
-      });
+			expect(response.status).toBe(400);
+			expect(response.body).toEqual({ error: 'this format of file not is supported' });
+		});
 
-      test('it should not save image with route not support file', async () => {
-         await createUser(api);
+		test('it should not save image with route not support file', async () => {
+			await createUser(api);
 
-         const User = await createLogin(api);
-         const response = await api
-            .post('/avatar/reupload')
-            .set('authorization', `Bearer ${User.body.token}`)
-            .attach('avatar', image);
+			const User = await createLogin(api);
+			const response = await api
+				.post('/avatar/reupload')
+				.set('authorization', `Bearer ${User.body.token}`)
+				.attach('avatar', image);
 
-         expect(response.status).toBe(400);
-         expect(response.body).toEqual({ error: 'this route not support uploading files' });
-      });
+			expect(response.status).toBe(400);
+			expect(response.body).toEqual({ error: 'this route not support uploading files' });
+		});
 
-      test('it should save image', async () => {
-         await createUser(api);
+		test('it should save image', async () => {
+			await createUser(api);
 
-         const user = await createLogin(api);
-         const response = await api
-            .post('/avatar')
-            .set('authorization', `Bearer ${user.body.token}`)
-            .attach('avatar', image);
+			const user = await createLogin(api);
+			const response = await api
+				.post('/avatar')
+				.set('authorization', `Bearer ${user.body.token}`)
+				.attach('avatar', image);
 
-         expect(response.status).toBe(201);
-         expect(response.body).toHaveProperty('id');
-      });
+			expect(response.status).toBe(201);
+			expect(response.body).toHaveProperty('id');
+		});
 
-      test('it should save repeated image', async () => {
-         await createUser(api);
+		test('it should save repeated image', async () => {
+			await createUser(api);
 
-         const user = await createLogin(api);
-         const firstImage = await api
-            .post('/avatar')
-            .set('Content-Type', 'multipart/form-data')
-            .set('authorization', `Bearer ${user.body.token}`)
-            .attach('avatar', image);
+			const user = await createLogin(api);
+			const firstImage = await api
+				.post('/avatar')
+				.set('Content-Type', 'multipart/form-data')
+				.set('authorization', `Bearer ${user.body.token}`)
+				.attach('avatar', image);
 
-         const twoImage = await api
-            .post('/avatar')
-            .set('authorization', `Bearer ${user.body.token}`)
-            .attach('avatar', image);
+			const twoImage = await api
+				.post('/avatar')
+				.set('authorization', `Bearer ${user.body.token}`)
+				.attach('avatar', image);
 
-         expect(firstImage.status).toBe(201);
-         expect(firstImage.body).toHaveProperty('id');
+			expect(firstImage.status).toBe(201);
+			expect(firstImage.body).toHaveProperty('id');
 
-         expect(twoImage.status).toBe(201);
-         expect(twoImage.body).toHaveProperty('id');
-      });
-   });
+			expect(twoImage.status).toBe(201);
+			expect(twoImage.body).toHaveProperty('id');
+		});
+	});
 
-   describe('Reupload of avatar', () => {
-      test('it should not reupload image with invalid id of avatar', async () => {
-         await createUser(api);
+	describe('Reupload of avatar', () => {
+		test('it should not reupload image with invalid id of avatar', async () => {
+			await createUser(api);
 
-         const User = await createLogin(api);
-         const response = await api
-            .post(`/avatar/reupload`)
-            .set('authorization', `Bearer ${User.body.token}`)
-            .send({ id: v4() });
+			const User = await createLogin(api);
+			const response = await api
+				.post(`/avatar/reupload`)
+				.set('authorization', `Bearer ${User.body.token}`)
+				.send({ id: v4() });
 
-         expect(response.status).toBe(400);
-         expect(response.body).toEqual({ error: 'this avatar is not uploaded' });
-      });
+			expect(response.status).toBe(400);
+			expect(response.body).toEqual({ error: 'this avatar is not uploaded' });
+		});
 
-      test('it should not reupload image without id of avatar', async () => {
-         await createUser(api);
+		test('it should not reupload image without id of avatar', async () => {
+			await createUser(api);
 
-         const User = await createLogin(api);
-         const response = await api
-            .post(`/avatar/reupload`)
-            .set('authorization', `Bearer ${User.body.token}`);
+			const User = await createLogin(api);
+			const response = await api
+				.post(`/avatar/reupload`)
+				.set('authorization', `Bearer ${User.body.token}`);
 
-         expect(response.status).toBe(402);
-         expect(response.body).toEqual({ error: 'this data is not valid' });
-      });
+			expect(response.status).toBe(400);
+			expect(response.body).toEqual({ error: 'this data is not valid' });
+		});
 
-      test('it should reupload image', async () => {
-         await createUser(api);
+		test('it should reupload image', async () => {
+			await createUser(api);
 
-         const User = await createLogin(api);
-         const upload = await api
-            .post('/avatar')
-            .set('authorization', `Bearer ${User.body.token}`)
-            .attach('avatar', image);
+			const User = await createLogin(api);
+			const upload = await api
+				.post('/avatar')
+				.set('authorization', `Bearer ${User.body.token}`)
+				.attach('avatar', image);
 
-         const response = await api
-            .post(`/avatar/reupload`)
-            .set('authorization', `Bearer ${User.body.token}`)
-            .send({ id: upload.body.id });
+			const response = await api
+				.post(`/avatar/reupload`)
+				.set('authorization', `Bearer ${User.body.token}`)
+				.send({ id: upload.body.id });
 
-         expect(response.status).toBe(201);
-         expect(response.body).toEqual({});
-      });
-   });
+			expect(response.status).toBe(201);
+			expect(response.body).toEqual({});
+		});
+	});
 });

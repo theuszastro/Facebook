@@ -1,15 +1,23 @@
 import { prisma } from '../../../src/database/connection';
 
+let isFirst = true;
+
 export async function clear() {
-   const models = Object.keys(prisma)
-      .filter(mo => !mo.startsWith('$'))
-      .filter(mo => !mo.startsWith('_'));
+	if (isFirst) {
+		isFirst = false;
 
-   const deleteModels: any[] = [];
+		return;
+	}
 
-   for (let model of models) {
-      deleteModels.push(prisma[model].deleteMany());
-   }
+	const models = Object.keys(prisma)
+		.filter(mo => !mo.startsWith('$'))
+		.filter(mo => !mo.startsWith('_'));
 
-   await prisma.$transaction(deleteModels);
+	const deleteModels: any[] = [];
+
+	for (let model of models) {
+		deleteModels.push(prisma[model].deleteMany());
+	}
+
+	await prisma.$transaction(deleteModels);
 }
